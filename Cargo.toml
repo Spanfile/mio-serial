@@ -6,11 +6,11 @@ description = "A serial port implementation for mio"
 license = "MIT"
 homepage = "https://github.com/berkowski/mio-serial"
 repository = "https://github.com/berkowski/mio-serial"
-documentation = "http://docs.rs/mio-serial"
+documentation = "https://docs.rs/mio-serial"
 readme = "README.md"
 keywords = ["rs232", "serial", "mio"]
 categories = ["asynchronous", "hardware-support"]
-edition = "2018"
+edition = "2021"
 
 [package.metadata]
 msrv = "1.60.0" # Used by cargo-msrv
@@ -20,18 +20,18 @@ default = []
 libudev = ["serialport/libudev"]
 
 [dependencies.mio]
-version = "0.8"
+version = "1.0.2"
 features = ["os-poll", "os-ext"]
 
 [dependencies.serialport]
-version = "4"
+version = "4.5.0"
 default-features = false
 
 [dependencies.log]
-version = "0.4"
+version = "0.4.22"
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.26"
+nix = { version = "0.29.0", features = ["term"] }
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = [
@@ -42,7 +42,7 @@ winapi = { version = "0.3", features = [
 ] }
 
 [dev-dependencies.env_logger]
-version = "0.10"
+version = "0.11.5"
 
 [[example]]
 name = "read_serialport"

@@ -543,11 +543,12 @@ impl TryFrom<NativeBlockingSerialPort> for SerialStream {
         );
         log::debug!("setting VMIN = 1");
         use nix::sys::termios::{self, SetArg, SpecialCharacterIndices};
-        let mut t = termios::tcgetattr(port.as_raw_fd()).map_err(map_nix_error)?;
+        let mut t = termios::tcgetattr(unsafe { BorrowedFd::borrow_raw(port.as_raw_fd()) }).map_err(map_nix_error)?;
 
         // Set VMIN = 1 to block until at least one character is received.
         t.control_chars[SpecialCharacterIndices::VMIN as usize] = 1;
-        termios::tcsetattr(port.as_raw_fd(), SetArg::TCSANOW, &t).map_err(map_nix_error)?;
+        termios::tcsetattr(unsafe { BorrowedFd::borrow_raw(port.as_raw_fd()) }, SetArg::TCSANOW, &t)
+            .map_err(map_nix_error)?;
 
         // Set the O_NONBLOCK flag.
         log::debug!("setting O_NONBLOCK flag");
@@ -682,7 +683,9 @@ mod io {
         }
 
         fn flush(&mut self) -> StdIoResult<()> {
-            uninterruptibly!(termios::tcdrain(self.inner.as_raw_fd()).map_err(StdIoError::from))
+            uninterruptibly!(
+                termios::tcdrain(unsafe { BorrowedFd::borrow_raw(self.inner.as_raw_fd()) }).map_err(StdIoError::from)
+            )
         }
     }
 
@@ -716,7 +719,9 @@ mod io {
         }
 
         fn flush(&mut self) -> StdIoResult<()> {
-            uninterruptibly!(termios::tcdrain(self.inner.as_raw_fd()).map_err(StdIoError::from))
+            uninterruptibly!(
+                termios::tcdrain(unsafe { BorrowedFd::borrow_raw(self.inner.as_raw_fd()) }).map_err(StdIoError::from)
+            )
         }
     }
 }
